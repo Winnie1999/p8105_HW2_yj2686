@@ -1,0 +1,48 @@
+---
+title: "p8105_HW2_yj2686"
+author: "Yiqun Jin"
+date: "10/9/2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(readxl)
+```
+
+## Problem 1
+
+Read and clean the Mr. Trash Wheel sheet:
+
+```{r Mr_Trash_Weel}
+MrTrashData = read_excel("./data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", 
+                                 sheet = "Mr. Trash Wheel", 
+                                 range = "A2:N535" ) %>%
+  janitor::clean_names() %>% 
+  drop_na(dumpster) %>% 
+  mutate(sports_balls = as.integer(round(sports_balls, 0)))
+
+MrTrashData
+
+```
+Read and clean precipitation data for 2018 and 2019.
+
+for 2018
+
+```{r}
+prcp_2018 = read_excel("./data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx",
+                       sheet = "2018 Precipitation",
+                       range = "A2:B14") %>% 
+  janitor::clean_names() %>% 
+  drop_na() %>% 
+  mutate(year = "2018") %>% 
+  relocate(year)
+
+prcp_2018
+```
+
+
+
+## Problem 2
+
+
