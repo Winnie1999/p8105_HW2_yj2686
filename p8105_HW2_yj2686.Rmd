@@ -19,7 +19,7 @@ MrTrashData =
   ##specify the sheet in the Excel file and to omit non-data entries
   read_excel("./data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", 
              sheet = "Mr. Trash Wheel", 
-             range = "A2:N535" ) %>%
+             range = "A2:N534" ) %>%
   ##use reasonable variable names
   janitor::clean_names() %>% 
   ##omit rows that do not include dumpster-specific data
@@ -63,7 +63,23 @@ prcp_2019 =
   relocate(year)
 prcp_2019 
 ```
+Combine precipitation datasets and convert month to a character variable
 
+```{r}
+combined_prcp =
+  bind_rows(prcp_2018,prcp_2019) %>% 
+  mutate(
+    month = month.name[month]
+  ) 
+combined_prcp
+
+```
+
+Summary about data
+
+In Mr. Trash Wheel data, the key variables are `r names(MrTrashData)`. Mr. Trash Wheel data has `r nrow(MrTrashData)` observations of dumpsters, and `r ncol(MrTrashData) ` criteria to evaluate the trash in dumpsters. The median number of sports balls in a dumpster in 2019 is `r median(pull(filter(MrTrashData, year == 2019), sports_balls))`
+
+In precipitation data, the key variables are `r names(combined_prcp)`. Precipitation data has `r nrow(combined_prcp)` number of observations in total. The total precipitation in 2018 is `r sum(select(filter(combined_prcp, year == 2018), total))`
 
 
 ## Problem 2
