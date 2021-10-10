@@ -84,4 +84,24 @@ In precipitation data, the key variables are `r names(combined_prcp)`. Precipita
 
 ## Problem 2
 
+```{r}
+pols_month = read_csv("./data/fivethirtyeight_datasets/pols-month.csv",show_col_types = FALSE) %>% 
+  janitor::clean_names() %>% 
+  ## break up the variable mon into integer variables year, month, and day
+  separate(mon, into = c("year", "month","day")) %>%
+  ## replace month number with month name
+  mutate(month = as.integer(month),
+         month = month.name[month]) %>% 
+  ## create a president variable taking values gop and dem
+  mutate(president = if_else(prez_gop == 0, "dem", "gop")) %>%
+  ## remove prez_dem, prez_gop, and day variables
+  select(-prez_dem, -prez_gop, -day)
+
+pols_month
+```
+
+
+
+
+
 
