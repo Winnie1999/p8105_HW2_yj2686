@@ -75,7 +75,7 @@ combined_prcp
 
 ```
 
-Summary about data
+Summary of datasets
 
 In Mr. Trash Wheel data, the key variables are `r names(MrTrashData)`. Mr. Trash Wheel data has `r nrow(MrTrashData)` observations of dumpsters, and `r ncol(MrTrashData) ` criteria to evaluate the trash in dumpsters. The median number of sports balls in a dumpster in 2019 is `r median(pull(filter(MrTrashData, year == 2019), sports_balls))`
 
@@ -93,6 +93,7 @@ pols_month = read_csv("./data/fivethirtyeight_datasets/pols-month.csv",show_col_
   separate(mon, into = c("year", "month","day")) %>%
   ## replace month number with month name
   mutate(month = as.integer(month),
+         year = as.integer(year),
          month = month.name[month]) %>% 
   ## create a president variable taking values gop and dem
   mutate(president = if_else(prez_gop == 0, "dem", "gop")) %>%
@@ -110,12 +111,13 @@ snp = read_csv("./data/fivethirtyeight_datasets/snp.csv", show_col_types = FALSE
   ## break up the variable date into integer variables year, month, and day
   separate(date, into = c("year", "month","day")) %>%
   ## replace month number with month name
-  mutate(year = ifelse(day == 00,day,year),
-         year = ifelse(day > 30,day,year))
-         ##month = as.integer(month),
-         #month = month.name[month],
-         #year = as.integer(year)) %>% 
-  #relocate(year, month)
+  mutate(#year = ifelse(day == 00,day,year),
+         #year = ifelse(day > 30,day,year))
+         month = as.integer(month),
+         month = month.name[month],
+         year = as.integer(year)) %>% 
+  select(-day) %>% 
+  relocate(year, month)
 
 snp
 ```
@@ -129,11 +131,78 @@ unemploy = read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>%
     Jan:Dec,
     names_to = "month",
     values_to = "unemployment") %>%
-  #janitor::clean_names()
+  
+  janitor::clean_names() %>%
 
   mutate(month = month.name[match(month,month.abb)])
+
 unemploy
 ```
+
+
+Join the datasets by merging snp into pols, and merging unemployment into the result.
+
+```{r}
+result = left_join(pols_month, snp)
+result = left_join(result, unemploy)
+```
+
+Summary of datasets:
+
+In pols_month dataset, the dimension of the dataset is `r dim(pols_month)`, the range of years is `r range(pull(pols_month, year))`, the key variables contains `r names(pols_month)`
+
+In snp dataset, the dimension of the dataset is `r dim(snp)`, the range of years is `r range(pull(snp, year))`, the key variables contains `r names(snp)`
+
+In unemployment dataset, the dimension of the dataset is `r dim(unemploy)`, the range of years is `r range(pull(unemploy, year))`,the key variables contains `r names(unemploy)`
+
+## Problem 3
+
+Load and tidy the data. 
+
+```{r}
+popular_baby_names = 
+  read.csv("./data/Popular_Baby_Names.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(ethnicity = recode(ethnicity, "ASIAN AND PACI" = "ASIAN AND PACIFIC ISLANDER"),
+         ethnicity = recode(ethnicity, "WHITE NON HISP" = "WHITE NON HISPANIC"),
+         ethnicity = recode(ethnicity, "BLACK NON HISP" = "BLACK NON HISPANIC"),
+         child_s_first_name =  str_to_title(child_s_first_name),
+         ) %>%
+  distinct()
+```
+
+Produce a well-structured, reader-friendly table showing the rank in popularity of the name “Olivia” as a female baby name over time
+
+
+```{r}
+olivia_rank = 
+  popular_baby_names %>% 
+  filter(child_s_first_name == "Olivia", gender == "FEMALE") %>% 
+  select(-count, -child_s_first_name,-gender) %>% 
+  pivot_wider(
+    names_from = year_of_birth,
+    values_from = rank
+  ) %>%
+  knitr::kable(caption = "Rank in popularity of the name Olivia as a female baby name over time")
+olivia_rank
+```
+
+Produce a similar table showing the most popular name among male children over time.
+
+```{r}
+male_rank = 
+  popular_baby_names %>%
+  filter(gender == "MALE", rank == "1") %>% 
+  select(-count, -rank, -gender) %>% 
+  pivot_wider(
+    names_from = year_of_birth,
+    values_from = child_s_first_name
+  ) %>%
+  knitr::kable(caption = "Rank in popularity of the male baby name over time")
+male_rank
+```
+
+
 
 
 
