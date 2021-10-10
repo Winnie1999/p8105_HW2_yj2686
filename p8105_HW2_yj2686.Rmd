@@ -84,6 +84,8 @@ In precipitation data, the key variables are `r names(combined_prcp)`. Precipita
 
 ## Problem 2
 
+First, clean the data in pols-month.csv.
+
 ```{r}
 pols_month = read_csv("./data/fivethirtyeight_datasets/pols-month.csv",show_col_types = FALSE) %>% 
   janitor::clean_names() %>% 
@@ -100,7 +102,38 @@ pols_month = read_csv("./data/fivethirtyeight_datasets/pols-month.csv",show_col_
 pols_month
 ```
 
+Second, clean the data in snp.csv.
 
+```{r}
+snp = read_csv("./data/fivethirtyeight_datasets/snp.csv", show_col_types = FALSE) %>% 
+  janitor::clean_names() %>% 
+  ## break up the variable date into integer variables year, month, and day
+  separate(date, into = c("year", "month","day")) %>%
+  ## replace month number with month name
+  mutate(year = ifelse(day == 00,day,year),
+         year = ifelse(day > 30,day,year))
+         ##month = as.integer(month),
+         #month = month.name[month],
+         #year = as.integer(year)) %>% 
+  #relocate(year, month)
+
+snp
+```
+
+Third, tidy the unemployment data 
+
+```{r}
+unemploy = read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>%
+  
+  pivot_longer(
+    Jan:Dec,
+    names_to = "month",
+    values_to = "unemployment") %>%
+  #janitor::clean_names()
+
+  mutate(month = month.name[match(month,month.abb)])
+unemploy
+```
 
 
 
