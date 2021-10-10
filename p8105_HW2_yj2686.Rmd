@@ -26,9 +26,6 @@ MrTrashData =
   drop_na(dumpster) %>% 
   ## round the number of sports balls to the nearest integer
   mutate(sports_balls = round(sports_balls, 0))
-
-MrTrashData
-
 ```
 Read and clean precipitation data for 2018 and 2019.
 
@@ -46,8 +43,8 @@ prcp_2018 =
   ##add a variable for year
   mutate(year = "2018") %>% 
   relocate(year)
-prcp_2018
 ```
+for 2019
 
 ```{r}
 prcp_2019 = 
@@ -61,7 +58,6 @@ prcp_2019 =
   ##add a variable for year
   mutate(year = "2019") %>% 
   relocate(year)
-prcp_2019 
 ```
 Combine precipitation datasets and convert month to a character variable
 
@@ -71,8 +67,6 @@ combined_prcp =
   mutate(
     month = month.name[month]
   ) 
-combined_prcp
-
 ```
 
 Summary of datasets
@@ -99,8 +93,6 @@ pols_month = read_csv("./data/fivethirtyeight_datasets/pols-month.csv",show_col_
   mutate(president = if_else(prez_gop == 0, "dem", "gop")) %>%
   ## remove prez_dem, prez_gop, and day variables
   select(-prez_dem, -prez_gop, -day)
-
-pols_month
 ```
 
 Second, clean the data in snp.csv.
@@ -111,15 +103,15 @@ snp = read_csv("./data/fivethirtyeight_datasets/snp.csv", show_col_types = FALSE
   ## break up the variable date into integer variables year, month, and day
   separate(date, into = c("year", "month","day")) %>%
   ## replace month number with month name
-  mutate(#year = ifelse(day == 00,day,year),
-         #year = ifelse(day > 30,day,year))
+  mutate(year = ifelse(day == 00,day,year),
+         year = ifelse(day > 30,day,year),
          month = as.integer(month),
          month = month.name[month],
-         year = as.integer(year)) %>% 
+         year = as.integer(year),
+         year = ifelse(year <= 21, year + 2000, year + 1900)) %>% 
   select(-day) %>% 
-  relocate(year, month)
-
-snp
+  relocate(year, month) %>%
+  arrange(year,month)
 ```
 
 Third, tidy the unemployment data 
@@ -136,7 +128,6 @@ unemploy = read_csv("./data/fivethirtyeight_datasets/unemployment.csv") %>%
 
   mutate(month = month.name[match(month,month.abb)])
 
-unemploy
 ```
 
 
@@ -184,7 +175,6 @@ olivia_rank =
     values_from = rank
   ) %>%
   knitr::kable(caption = "Rank in popularity of the name Olivia as a female baby name over time")
-olivia_rank
 ```
 
 Produce a similar table showing the most popular name among male children over time.
@@ -199,7 +189,6 @@ male_rank =
     values_from = child_s_first_name
   ) %>%
   knitr::kable(caption = "Rank in popularity of the male baby name over time")
-male_rank
 ```
 
 Finally, for male, white non-hispanic children born in 2016, produce a scatter plot showing the number of children with a name (y axis) against the rank in popularity of that name (x axis).
@@ -213,8 +202,7 @@ scatter_plot =
   male_white_non_hispanic_2016 %>% 
   ggplot(aes(x = rank, y = count)) +
   geom_point() +
-  labs(title = "name rank of male white non-hispanic children born in 2016")
-scatter_plot
+  labs(title = "Name rank of male white non-hispanic children born in 2016")
 ```
 
 
